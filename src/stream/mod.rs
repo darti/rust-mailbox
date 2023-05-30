@@ -13,30 +13,38 @@
 //  0. You just DO WHAT THE FUCK YOU WANT TO.
 
 pub mod entry;
+
+use std::io::Read;
 pub use self::entry::Entry;
 
 mod lines;
 pub use self::lines::Lines;
 
 mod iter;
+mod async_iter;
+
 mod async_lines;
 pub use self::async_lines::AsyncLines;
 
 pub use self::iter::Iter;
 
-use std::io::{BufReader, Read};
 use tokio::io::AsyncRead;
+use crate::stream::async_iter::AsyncIter;
 
 /// Create an `Iterator` over line based entries.
 #[inline]
 pub fn entries<R: Read>(input: R) -> Iter<R> {
     Iter::new(input)
 }
+pub fn async_entries<R: AsyncRead + Unpin>(input: R) -> AsyncIter<R> {
+    AsyncIter::new(input)
+}
+
 
 /// Create an `Iterator` over lines.
 #[inline]
-pub fn lines<R: Read>(input: R) -> Lines<BufReader<R>> {
-    Lines::new(BufReader::new(input))
+pub fn lines<R: Read>(input: R) -> Lines<std::io::BufReader<R>> {
+    Lines::new(std::io::BufReader::new(input))
 }
 
-pub fn async_lines<R: AsyncRead + Unpin>(input: R) -> AsyncLines<R> { AsyncLines::new(input) }
+pub fn async_lines<R: AsyncRead + Unpin>(input: tokio::io::BufReader<R>) -> AsyncLines<R> { AsyncLines::new(input) }

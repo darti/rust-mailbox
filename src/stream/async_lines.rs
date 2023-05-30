@@ -18,39 +18,60 @@ use tokio::io::{AsyncBufReadExt, AsyncRead, BufReader};
 /// Iterator over ASCII lines.
 ///
 /// The content of a line is not assumed to be in any specific encoding.
-pub struct AsyncLines<R: AsyncRead>(BufReader<R>, u64);
+pub struct AsyncLines<R: AsyncRead> {
+    reader: BufReader<R>,
+    offset: u64,
+    peeked: Option<std::io::Result<(u64, Vec<u8>)>>,
+}
 
 impl<R: AsyncRead + Unpin> AsyncLines<R> {
     /// Create a new `Iterator` from the given input.
     #[inline]
-    pub fn new(input: R) -> Self {
-        AsyncLines(BufReader::new(input), 0)
+    pub fn new(input: BufReader<R>) -> Self {
+        AsyncLines {
+            reader: input,
+            offset: 0,
+            peeked: None,
+        }
     }
 
     #[inline]
     pub async fn next(&mut self) -> Option<std::io::Result<(u64, Vec<u8>)>> {
-        let mut buffer = Vec::new();
-        let offset = self.1;
+        if self.peeked.is_some() {
+            let mut result = None;
+            std::mem::swap(&mut self.peeked, &mut result);
+            result
+        } else {
+            let mut buffer = Vec::new();
+            let offset = self.offset;
 
-        match self.0.read_until(b'\n', &mut buffer).await {
-            Ok(0) => None,
+            match self.reader.read_until(b'\n', &mut buffer).await {
+                Ok(0) => None,
 
-            Ok(_) => {
-                self.1 += buffer.len() as u64;
+                Ok(_) => {
+                    self.offset += buffer.len() as u64;
 
-                if buffer.last() == Some(&b'\n') {
-                    buffer.pop();
-
-                    if buffer.last() == Some(&b'\r') {
+                    if buffer.last() == Some(&b'\n') {
                         buffer.pop();
+
+                        if buffer.last() == Some(&b'\r') {
+                            buffer.pop();
+                        }
                     }
+
+                    Some(Ok((offset, buffer)))
                 }
 
-                Some(Ok((offset, buffer)))
+                Err(e) => Some(Err(e)),
             }
-
-            Err(e) => Some(Err(e)),
         }
+    }
+
+    pub async fn peek(&mut self) -> Option<&std::io::Result<(u64, Vec<u8>)>> {
+        if self.peeked.is_none() {
+            self.peeked = self.next().await;
+        }
+        self.peeked.as_ref()
     }
 }
 

@@ -35,6 +35,7 @@ mod begin;
 pub use self::begin::Begin;
 
 pub(crate) mod header;
+
 pub use self::header::Header;
 
 #[cfg(test)]

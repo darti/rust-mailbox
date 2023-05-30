@@ -19,9 +19,13 @@ mod lines;
 pub use self::lines::Lines;
 
 mod iter;
+mod async_lines;
+pub use self::async_lines::AsyncLines;
+
 pub use self::iter::Iter;
 
 use std::io::{BufReader, Read};
+use tokio::io::AsyncRead;
 
 /// Create an `Iterator` over line based entries.
 #[inline]
@@ -34,3 +38,5 @@ pub fn entries<R: Read>(input: R) -> Iter<R> {
 pub fn lines<R: Read>(input: R) -> Lines<BufReader<R>> {
     Lines::new(BufReader::new(input))
 }
+
+pub fn async_lines<R: AsyncRead + Unpin>(input: R) -> AsyncLines<R> { AsyncLines::new(input) }

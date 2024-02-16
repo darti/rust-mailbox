@@ -17,6 +17,7 @@ use crate::stream::entry::header;
 use std::io;
 
 bitflags! {
+    #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
     pub struct Status: u8 {
         const NEW      = 0b00000001;
         const SEEN     = 0b00000010;

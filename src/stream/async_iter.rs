@@ -13,8 +13,10 @@
 //  0. You just DO WHAT THE FUCK YOU WANT TO.
 
 use super::{entry, Entry};
-use tokio::io::{AsyncRead, BufReader};
 use crate::stream::AsyncLines;
+use async_stream::stream;
+use futures_core::Stream;
+use tokio::io::{AsyncRead, BufReader};
 
 /// `Iterator` over line based entries.
 ///
@@ -153,5 +155,12 @@ impl<R: AsyncRead + Unpin> AsyncIter<R> {
             }
         }
     }
-}
 
+    pub fn into_stream(mut self) -> impl Stream<Item = std::io::Result<Entry>> {
+        stream! {
+            while let Some(value) = self.next().await {
+                yield value;
+            }
+        }
+    }
+}

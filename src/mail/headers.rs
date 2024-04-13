@@ -28,7 +28,7 @@ impl Headers {
     pub(crate) fn insert(&mut self, header: entry::Header) {
         self.0
             .entry(header.key())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(header.value());
     }
 

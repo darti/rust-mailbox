@@ -86,10 +86,10 @@ impl Header {
     /// Note that this allocates only if the key is not already in the proper case.
     #[inline]
     pub fn key(&self) -> Item {
-        match (&self.inner[Range {
+        match self.inner[Range {
             start: self.key.start,
             end: self.key.end,
-        }])
+        }]
             .header(Default::default())
         {
             Cow::Borrowed(_) => self.inner.clone().map(|s| {

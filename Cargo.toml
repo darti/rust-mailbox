@@ -12,14 +12,14 @@ keywords = ["mail", "mbox"]
 edition = "2021"
 
 [dependencies]
-bitflags = "2.4.2"
+bitflags = "2.5.0"
 owning_ref = "0.4"
 fnv = "1"
 
 nom = "7"
 casing = "0.1"
-chrono = "0.4"
 mime = "0.3"
+time = { version = "0.3", features = ["parsing", "macros"] }
 
 tokio = { version = "1", features = ["fs", "io-util"] }
 async-stream = "0.3.5"

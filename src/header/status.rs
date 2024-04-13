@@ -16,6 +16,8 @@ use super::Header;
 use crate::stream::entry::header;
 use std::io;
 
+use bitflags::bitflags;
+
 bitflags! {
     #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
     pub struct Status: u8 {

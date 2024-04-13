@@ -14,12 +14,13 @@
 
 use super::Header;
 use crate::stream::entry::header;
-use chrono::{DateTime, FixedOffset};
 use std::io;
 use std::ops::Deref;
+use time::format_description::well_known::Rfc2822;
+use time::OffsetDateTime;
 
 #[derive(Eq, PartialEq, Ord, PartialOrd, Clone, Debug)]
-pub struct Date(DateTime<FixedOffset>);
+pub struct Date(OffsetDateTime);
 
 impl Header for Date {
     #[inline(always)]
@@ -29,14 +30,14 @@ impl Header for Date {
 
     #[inline]
     fn parse(values: &[header::Item]) -> io::Result<Self> {
-        DateTime::parse_from_rfc2822(values[0].as_ref())
+        OffsetDateTime::parse(values[0].as_ref(), &Rfc2822)
             .map(Date)
             .map_err(|_| io::Error::new(io::ErrorKind::InvalidInput, "invalid date"))
     }
 }
 
 impl Deref for Date {
-    type Target = DateTime<FixedOffset>;
+    type Target = OffsetDateTime;
 
     #[inline]
     fn deref(&self) -> &Self::Target {

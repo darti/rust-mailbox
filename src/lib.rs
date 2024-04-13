@@ -12,17 +12,6 @@
 //
 //  0. You just DO WHAT THE FUCK YOU WANT TO.
 
-#[macro_use]
-extern crate bitflags;
-extern crate fnv;
-extern crate owning_ref;
-
-extern crate casing;
-extern crate chrono;
-extern crate mime;
-extern crate nom;
-
-#[macro_use]
 mod util;
 pub use crate::util::Address;
 
